@@ -45,7 +45,7 @@ def create_tunnel(host, local_port):
         region = config.get('region')
         target = config.get('target')
         port = config.get('port', 5432)
-        args = ['aws', 'ssm', 'start-session']
+        args = ['cmd', '/k', 'aws', 'ssm', 'start-session']
         if region:
             args += ['--region', region]
         if target:
@@ -82,7 +82,7 @@ layout = [
     [
         sg.Text('Local port: ', tooltip='Porta local com a qual a conexão será associada'),
         sg.Input(default_text=None,  size=(5,1), enable_events=True, key='-PORT-'),
-        sg.Button(button_text="Criar túnel", disabled=True, key='-CREATE-')
+        sg.Button(button_text='Create tunnel', disabled=True, key='-CREATE-')
     ]
 ]
 
@@ -99,13 +99,15 @@ sg.set_global_icon(icon)
 
 
 window = sg.Window(
-    'Criar túnel RDS',
+    'Create RDS tunnel',
     layout=layout,
     #icon=icon,
     finalize=True
 )
-window['-REGION-'].bind("<Return>", "ENTER-")
-window['-REGION-'].bind("<KP_Enter>", "ENTER-")
+window['-REGION-'].bind('<Return>', 'ENTER-')
+window['-REGION-'].bind('<KP_Enter>', 'ENTER-')
+window['-PORT-'].bind('<Return>', 'ENTER-')
+window['-PORT-'].bind('<KP_Enter>', 'ENTER-')
 
 
 def update_db_clusters(values):
@@ -126,11 +128,11 @@ while True:
     #print(event)
     #print(values)
     if event in (None, 'Exit'):
-            print("[LOG] Clicked Exit!")
+            print('[LOG] Clicked Exit!')
             break
     elif event in {'-PROFILE-', '-REGION-ENTER-'}:
         update_db_clusters(values)
-    elif event == '-CREATE-':
+    elif event in {'-CREATE-', '-PORT-ENTER-'}:
         host = aws.db_clusters[values['-DBCLUSTER-']]['Endpoint']
         create_tunnel(host, values['-PORT-'])
     update_button(values)

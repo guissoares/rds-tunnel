@@ -1,1 +1,4 @@
 config.yml
+*.lnk
+*.bat
+*.exe
